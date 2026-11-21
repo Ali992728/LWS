@@ -1,6 +1,6 @@
 ﻿namespace LWS.IService
 {
-    public class ILaptopService
+    public interface ILaptopService
     {
     }
 }

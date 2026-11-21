@@ -1,6 +1,6 @@
 ﻿namespace LWS.IService
 {
-    public class IAuthService
+    public interface IAuthService
     {
     }
 }
