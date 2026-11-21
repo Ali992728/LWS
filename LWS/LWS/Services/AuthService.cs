@@ -1,6 +1,7 @@
 ﻿using LWS.Data;
 using LWS.Dto;
 using LWS.IService;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -9,7 +10,7 @@ using System.Text;
 
 namespace LWS.Services
 {
-    public class AuthService(AppDbContext _context):IAuthService
+    public class AuthService(AppDbContext _context, IConfiguration _configuration) :IAuthService
     {
         private string PasswordHashing(UserDto dto)
         {
@@ -18,13 +19,14 @@ namespace LWS.Services
             return hash;
         }
 
-        private string GetJwtToken(UserDto dto)
+        private string GetJwtToken(UserDto dto,string role)
         {
             var claims = new[]
             {
                 new Claim(ClaimTypes.Name, dto.FirstName + " " + dto.LastName),
                 new Claim(ClaimTypes.Email,dto.Email),
-                new Claim(ClaimTypes.NameIdentifier,dto.Id.ToString())
+                new Claim(ClaimTypes.NameIdentifier,dto.Id.ToString()),
+                new Claim(ClaimTypes.Role,role) 
             };
 
             var key= new SymmetricSecurityKey(Encoding.UTF8.GetBytes("h<#@B2SRZ<?M.@&/Aa^pfz.)0(PunsODR)!$*El$)qlhurFt{AOJG3$r!*y:e0F@"));
@@ -49,11 +51,49 @@ namespace LWS.Services
             {
                 var tokenDto=new TokenDto();
                 
-                if(dto==null)
+                if(dto==null || string.IsNullOrEmpty(dto.Email) || string.IsNullOrEmpty(dto.Password))
                 {
                     tokenDto.Messege="Please fill all details.";
                     return new Tuple<int, TokenDto>(0,tokenDto);
                 }
+
+                //Admin Login
+
+                var adminEmail = _configuration["Admin:Email"];
+                var adminPasswordHash=_configuration["Admin:PasswordHash"];
+
+                if(dto.Email==adminEmail)
+                {
+                    if (string.IsNullOrEmpty(adminPasswordHash))
+                    {
+                        tokenDto.Messege = "Admin credentials are not configured.";
+                        return new Tuple<int, TokenDto>(2, tokenDto);
+                    }
+
+                    var passwordAdminHasher = new PasswordHasher<string>();
+                    var verifyAdminPassword = passwordAdminHasher.VerifyHashedPassword("Admin", adminPasswordHash, dto.Password);
+
+                    if(verifyAdminPassword==PasswordVerificationResult.Success || verifyAdminPassword==PasswordVerificationResult.SuccessRehashNeeded)
+                    {
+                        UserDto admin = new();
+                        admin.FirstName = "Admin";
+                        admin.LastName = "";
+                        admin.Id = Guid.Empty;
+                        admin.Email = adminEmail;
+
+                        var token = GetJwtToken(admin, "Admin");
+                        tokenDto.Token = token;
+                        tokenDto.Messege = "Admin login successful.";
+
+                        return new Tuple<int, TokenDto>(1, tokenDto);
+                    }
+
+                    tokenDto.Messege = "Invalid credentials.";
+                    return new Tuple<int, TokenDto>(2, tokenDto);
+
+                }
+
+                //Normal User Login
 
                 var existingUser = await _context.AccountUsers.FirstOrDefaultAsync(x => x.Email == dto.Email);
                 
@@ -80,7 +120,7 @@ namespace LWS.Services
                     user.Id= existingUser.Id;
                     user.Email= existingUser.Email;
 
-                    var token = GetJwtToken(user);
+                    var token = GetJwtToken(user,"User");
                     tokenDto.Token = token;
                     tokenDto.Messege = "Login successful.";
 
@@ -99,7 +139,7 @@ namespace LWS.Services
                     _context.AccountUsers.Update(existingUser);
                     await _context.SaveChangesAsync();
 
-                    var token = GetJwtToken(user);
+                    var token = GetJwtToken(user,"User");
                     tokenDto.Token = token;
                     tokenDto.Messege = "Login successful.";
 
