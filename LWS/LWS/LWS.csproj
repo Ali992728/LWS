@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.15" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.15" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.15">
       <PrivateAssets>all</PrivateAssets>
@@ -25,9 +26,7 @@
   <ItemGroup>
     <Folder Include="Controllers\" />
     <Folder Include="GenericResponse\" />
-    <Folder Include="IService\" />
     <Folder Include="Migrations\" />
-    <Folder Include="Services\" />
   </ItemGroup>
 
 </Project>
