@@ -1,4 +1,6 @@
 using LWS.Data;
+using LWS.IService;
+using LWS.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -34,11 +36,16 @@ builder.Services.AddAuthentication(options=>
 
 builder.Services.AddControllers();
 
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ILaptopService, LaptopService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 
