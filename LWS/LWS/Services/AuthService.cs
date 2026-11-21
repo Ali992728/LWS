@@ -1,6 +1,5 @@
 ﻿using LWS.Data;
 using LWS.Dto;
-using LWS.Entities;
 using LWS.IService;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
@@ -12,7 +11,7 @@ namespace LWS.Services
 {
     public class AuthService(AppDbContext _context):IAuthService
     {
-        private string PasswordHasing(UserDto dto)
+        private string PasswordHashing(UserDto dto)
         {
             var passwordHasher = new PasswordHasher<string>();
             var hash = passwordHasher.HashPassword(dto.Email,dto.Password);
@@ -42,5 +41,89 @@ namespace LWS.Services
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
+
+        public async Task<Tuple<int,TokenDto>> LoginUser(UserDto dto)
+        {
+            try
+            {
+                var tokenDto=new TokenDto();
+                
+                if(dto==null)
+                {
+                    tokenDto.Messege="Please fill all details.";
+                    return new Tuple<int, TokenDto>(0,tokenDto);
+                }
+
+                var existingUser = await _context.AccountUsers.FirstOrDefaultAsync(x => x.Email == dto.Email);
+                
+                if(existingUser==null)
+                {
+                    tokenDto.Messege = "User not found.";
+                    return new Tuple<int, TokenDto>(0, tokenDto);
+                }
+
+                if (string.IsNullOrEmpty(existingUser.Password))
+                {
+                    tokenDto.Messege = "Invalid credentials.";
+                    return new Tuple<int, TokenDto>(2, tokenDto);
+                }
+
+                var passwordHasher = new PasswordHasher<string>();
+                var verifyPassword = passwordHasher.VerifyHashedPassword(dto.Email, existingUser.Password, dto.Password);
+
+                if(verifyPassword==PasswordVerificationResult.Success)
+                {
+                    UserDto user = new();
+                    user.FirstName= existingUser.FirstName;
+                    user.LastName= existingUser.LastName;
+                    user.Id= existingUser.Id;
+                    user.Email= existingUser.Email;
+
+                    var token = GetJwtToken(user);
+                    tokenDto.Token = token;
+                    tokenDto.Messege = "Login successful.";
+
+                    return new Tuple<int, TokenDto>(1, tokenDto);
+                }
+
+                else if(verifyPassword==PasswordVerificationResult.SuccessRehashNeeded)
+                {
+                    UserDto user = new();
+                    user.FirstName = existingUser.FirstName;
+                    user.LastName = existingUser.LastName;
+                    user.Id = existingUser.Id;
+                    user.Email = existingUser.Email;
+
+                    existingUser.Password = PasswordHashing(dto);
+                    _context.AccountUsers.Update(existingUser);
+                    await _context.SaveChangesAsync();
+
+                    var token = GetJwtToken(user);
+                    tokenDto.Token = token;
+                    tokenDto.Messege = "Login successful.";
+
+                    return new Tuple<int, TokenDto>(1, tokenDto);
+                }
+
+
+                else if(verifyPassword==PasswordVerificationResult.Failed)
+                {
+                    tokenDto.Messege = "Invalid password.";
+
+                    return new Tuple<int, TokenDto>(2, tokenDto);
+                }
+
+                tokenDto.Messege = "Invalid credentials.";
+                return new Tuple<int, TokenDto>(2, tokenDto);
+
+            }
+
+            catch(Exception)
+            {
+                throw;
+            }
+        }
+
     }
 }
