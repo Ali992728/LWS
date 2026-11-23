@@ -60,7 +60,7 @@ namespace LWS.Services
                 //Admin Login
 
                 var adminEmail = _configuration["Admin:Email"];
-                var adminPasswordHash=_configuration["Admin:PasswordHash"];
+                var adminPasswordHash=_configuration["Admin:Password"];
 
                 if(dto.Email==adminEmail)
                 {
@@ -157,6 +157,45 @@ namespace LWS.Services
                 tokenDto.Messege = "Invalid credentials.";
                 return new Tuple<int, TokenDto>(2, tokenDto);
 
+            }
+
+            catch(Exception)
+            {
+                throw;
+            }
+        }
+
+
+
+        public async Task<Tuple<int,string>> RegisterUser(UserDto dto)
+        {
+            try
+            {
+                if (dto == null ||string.IsNullOrEmpty(dto.FirstName) ||string.IsNullOrEmpty(dto.LastName) ||string.IsNullOrEmpty(dto.PhoneNumber) ||string.IsNullOrEmpty(dto.Email) ||string.IsNullOrEmpty(dto.Password))
+                {
+                    return new Tuple<int, string>(0, "Please fill all required details.");
+                }
+
+
+                var existingUser = await _context.AccountUsers.AnyAsync(x => x.Email == dto.Email);
+
+                if(existingUser)
+                {
+                    return new Tuple<int, string>(1, "This user already exists!");
+                }
+
+                _context.AccountUsers.Add(new Entities.User
+                {
+                    FirstName = dto.FirstName,
+                    LastName = dto.LastName,
+                    PhoneNumber = dto.PhoneNumber,
+                    Email = dto.Email,
+                    Password = PasswordHashing(dto)
+                });
+
+                await _context.SaveChangesAsync();
+
+                return new Tuple<int, string>(2, "User registered successfully.");
             }
 
             catch(Exception)
