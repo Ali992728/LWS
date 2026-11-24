@@ -11,7 +11,5 @@ namespace LWS.Data
 
         public DbSet<User> AccountUsers { get; set; }
         public DbSet<Laptop> Laptops { get; set; }
-        public object Users { get; internal set; }
-        public object User { get; internal set; }
     }
 }

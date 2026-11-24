@@ -6,6 +6,7 @@ namespace LWS.Entities
     {
         [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
+        public string? SerialNo { get; set; }
         public string? Brand { get; set; }
         public string? Model { get; set; }
         public string? Processor { get; set; }
