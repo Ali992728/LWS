@@ -14,7 +14,7 @@ namespace LWS.Entities
         public string? Storage { get; set; }
         public string? Gpu { get; set; }
         public string? Display { get; set; }
-        public bool IsAvailable { get; set; } = true;
+        public bool? IsAvailable { get; set; } = true;
         public DateTime? CreatedDate { get; set; }
         public DateTime? LastModified { get; set; }
         public string? ImageUrl { get; set; }

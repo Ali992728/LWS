@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LWS.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20261120130006_dbinit")]
+    [Migration("20261124134818_dbinit")]
     partial class dbinit
     {
         /// <inheritdoc />
@@ -66,6 +66,9 @@ namespace LWS.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Ram")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SerialNo")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Storage")

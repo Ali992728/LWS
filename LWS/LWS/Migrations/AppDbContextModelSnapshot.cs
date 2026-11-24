@@ -65,6 +65,9 @@ namespace LWS.Migrations
                     b.Property<string>("Ram")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("SerialNo")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Storage")
                         .HasColumnType("nvarchar(max)");
 

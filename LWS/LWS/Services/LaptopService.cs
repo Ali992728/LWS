@@ -36,5 +36,34 @@ namespace LWS.Services
 
             return new Tuple<int, string>(1,"Laptop Added Successfully.");
         }
+
+
+
+        public async Task<Tuple<int, string>> UpdateLaptop(LaptopDto laptop)
+        {
+            var existing=await _context.Laptops.FirstOrDefaultAsync(x=>x.SerialNo==laptop.SerialNo);
+
+            if(existing == null)
+            {
+                return new Tuple<int, string>(0, "Laptop Not Found.");
+            }
+
+            existing.SerialNo=string.IsNullOrWhiteSpace(laptop.SerialNo)?existing.SerialNo:laptop.SerialNo;
+            existing.Brand=string.IsNullOrWhiteSpace(laptop.Brand)?existing.Brand:laptop.Brand;
+            existing.Model=string.IsNullOrWhiteSpace(laptop.Model)?existing.Model:laptop.Model;
+            existing.Processor=string.IsNullOrWhiteSpace(laptop.Processor)?existing.Processor:laptop.Processor;
+            existing.Ram=string.IsNullOrWhiteSpace(laptop.Ram)?existing.Ram:laptop.Ram;
+            existing.Storage=string.IsNullOrWhiteSpace(laptop.Storage)?existing.Storage:laptop.Storage;
+            existing.Gpu = string.IsNullOrWhiteSpace(laptop.Gpu) ? existing.Gpu : laptop.Gpu;
+            existing.Display = string.IsNullOrWhiteSpace(laptop.Display) ? existing.Display : laptop.Display;
+            existing.Price = string.IsNullOrWhiteSpace(laptop.Price.ToString())? existing.Price:laptop.Price;
+            existing.IsAvailable = string.IsNullOrWhiteSpace(laptop.IsAvailable.ToString()) ? existing.IsAvailable : laptop.IsAvailable;
+            existing.LastModified=DateTime.Now;
+
+            _context.Laptops.Update(existing);
+            await _context.SaveChangesAsync();
+
+            return new Tuple<int, string>(1, "Laptop Updated Successfully.");
+        }
     }
 }
