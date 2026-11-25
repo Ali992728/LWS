@@ -129,5 +129,141 @@ namespace LWS.Services
                 throw;
             }
         }
+
+
+
+        public async Task<Tuple<int, List<LaptopDto>>> GetAllLaptopsByBrand(string brand)
+        {
+            try
+            {
+                var laptops = await _context.Laptops.AsNoTracking().Where(x => x.Brand == brand).Select(x => new LaptopDto
+                    {
+                        Id = x.Id,
+                        SerialNo = x.SerialNo,
+                        Brand = x.Brand,
+                        Model = x.Model,
+                        Processor = x.Processor,
+                        Ram = x.Ram,
+                        Storage = x.Storage,
+                        Gpu = x.Gpu,
+                        Display = x.Display,
+                        Price = x.Price,
+                        IsAvailable = x.IsAvailable,
+                        ImageUrl = x.ImageUrl,
+                        ExtraImages = x.ExtraImages
+                    }).ToListAsync();
+
+                return new Tuple<int, List<LaptopDto>>(1, laptops);
+
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+
+
+
+        public async Task<Tuple<int, List<LaptopDto>>> GetAllLaptopsByModel(string model)
+        {
+            try
+            {
+                var laptops = await _context.Laptops.AsNoTracking().Where(x => x.Model == model).Select(x => new LaptopDto
+                    {
+                        Id = x.Id,
+                        SerialNo = x.SerialNo,
+                        Brand = x.Brand,
+                        Model = x.Model,
+                        Processor = x.Processor,
+                        Ram = x.Ram,
+                        Storage = x.Storage,
+                        Gpu = x.Gpu,
+                        Display = x.Display,
+                        Price = x.Price,
+                        IsAvailable = x.IsAvailable,
+                        ImageUrl = x.ImageUrl,
+                        ExtraImages = x.ExtraImages
+                    }).ToListAsync();
+
+                return new Tuple<int, List<LaptopDto>>(1, laptops);
+
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+
+
+        public async Task<Tuple<int, LaptopDto>> GetLaptopBySerialNo(string serialNo)
+        {
+            try
+            {
+                var existing = await _context.Laptops.AsNoTracking().FirstOrDefaultAsync(x => x.SerialNo == serialNo);
+
+                if (existing == null)
+                {
+                    return new Tuple<int, LaptopDto>(0, null);
+                }
+
+                var laptop = new LaptopDto
+                {
+                    Id = existing.Id,
+                    SerialNo = existing.SerialNo,
+                    Brand = existing.Brand,
+                    Model = existing.Model,
+                    Processor = existing.Processor,
+                    Ram = existing.Ram,
+                    Storage = existing.Storage,
+                    Gpu = existing.Gpu,
+                    Display = existing.Display,
+                    Price = existing.Price,
+                    IsAvailable = existing.IsAvailable,
+                    ImageUrl = existing.ImageUrl,
+                    ExtraImages = existing.ExtraImages
+                };
+
+                return new Tuple<int, LaptopDto>(1, laptop);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+
+
+        public async Task<Tuple<int, List<LaptopDto>>> GetAllLaptopsByPriceRange(decimal minPrice, decimal maxPrice)
+        {
+            try
+            {
+                var laptops = await _context.Laptops.AsNoTracking().Where(x => x.Price >= minPrice && x.Price <= maxPrice).Select(x => new LaptopDto
+                    {
+                        Id = x.Id,
+                        SerialNo = x.SerialNo,
+                        Brand = x.Brand,
+                        Model = x.Model,
+                        Processor = x.Processor,
+                        Ram = x.Ram,
+                        Storage = x.Storage,
+                        Gpu = x.Gpu,
+                        Display = x.Display,
+                        Price = x.Price,
+                        IsAvailable = x.IsAvailable,
+                        ImageUrl = x.ImageUrl,
+                        ExtraImages = x.ExtraImages
+                    }).ToListAsync();
+
+                return new Tuple<int, List<LaptopDto>>(1, laptops);
+
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
     }
 }
