@@ -74,5 +74,24 @@ namespace LWS.Controllers
                 throw;
             }
         }
+
+
+        [HttpGet("GetAllLaptops")]
+        public async Task<IActionResult> GetAllLaptops()
+        {
+            try
+            {
+                var result = await _laptopService.GetAllLaptops();
+                if (result.Item1 == 0)
+                {
+                    return NotFound(ResponseResult<List<LaptopDto>>.Failure(null, "No Laptop Found."));
+                }
+                return Ok(ResponseResult<List<LaptopDto>>.Success(result.Item2, "Laptops Retrieved Successfully."));
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
     }
 }

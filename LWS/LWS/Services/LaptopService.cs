@@ -100,5 +100,34 @@ namespace LWS.Services
                 throw;
             }
         }
+
+
+
+        public async Task<Tuple<int, List<LaptopDto>>> GetAllLaptops()
+        {
+            try
+            {
+                return new Tuple<int, List<LaptopDto>>(1, await _context.Laptops.AsNoTracking().Select(x => new LaptopDto
+                {
+                    Id = x.Id,
+                    SerialNo = x.SerialNo,
+                    Brand = x.Brand,
+                    Model = x.Model,
+                    Processor = x.Processor,
+                    Ram = x.Ram,
+                    Storage = x.Storage,
+                    Gpu = x.Gpu,
+                    Display = x.Display,
+                    Price = x.Price,
+                    IsAvailable = x.IsAvailable,
+                    ImageUrl = x.ImageUrl,
+                    ExtraImages = x.ExtraImages
+                }).ToListAsync());
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
     }
 }

@@ -7,6 +7,7 @@ namespace LWS.IService
         Task<Tuple<int, string>> AddLaptop(LaptopDto laptop);
         Task<Tuple<int, string>> UpdateLaptop(LaptopDto laptop);
         Task<Tuple<int, string>> DeleteLaptop(string serialNo);
+        Task<Tuple<int, List<LaptopDto>>> GetAllLaptops();
 
     }
 }
